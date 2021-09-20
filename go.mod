@@ -1,10 +1,9 @@
-module github.com/johnfercher/maroto
+module github.com/nburmi/maroto
 
-go 1.13
+go 1.16
 
 require (
 	github.com/boombuler/barcode v1.0.0
-	github.com/gojp/goreportcard v0.0.0-20191001233754-41818f5fd295 // indirect
 	github.com/google/uuid v1.1.1
 	github.com/jung-kurt/gofpdf v1.4.2
 	github.com/pkg/errors v0.8.1

@@ -2,11 +2,12 @@ package internal_test
 
 import (
 	"fmt"
-	"github.com/johnfercher/maroto/internal"
-	"github.com/johnfercher/maroto/internal/mocks"
-	"github.com/johnfercher/maroto/pkg/props"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/nburmi/maroto/internal"
+	"github.com/nburmi/maroto/internal/mocks"
+	"github.com/nburmi/maroto/pkg/props"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewMath(t *testing.T) {

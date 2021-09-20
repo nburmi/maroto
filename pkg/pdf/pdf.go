@@ -2,14 +2,15 @@ package pdf
 
 import (
 	"bytes"
+	"io"
 
-	"github.com/johnfercher/maroto/internal/fpdf"
-	"github.com/johnfercher/maroto/pkg/color"
+	"github.com/nburmi/maroto/internal/fpdf"
+	"github.com/nburmi/maroto/pkg/color"
 
-	"github.com/johnfercher/maroto/internal"
-	"github.com/johnfercher/maroto/pkg/consts"
-	"github.com/johnfercher/maroto/pkg/props"
 	"github.com/jung-kurt/gofpdf"
+	"github.com/nburmi/maroto/internal"
+	"github.com/nburmi/maroto/pkg/consts"
+	"github.com/nburmi/maroto/pkg/props"
 )
 
 // Maroto is the principal abstraction to create a PDF document.
@@ -56,6 +57,7 @@ type Maroto interface {
 
 	// Fonts
 	AddUTF8Font(familyStr string, styleStr consts.Style, fileStr string)
+	AddFontFromReader(familyStr, styleStr string, r io.Reader)
 	SetFontLocation(fontDirStr string)
 	SetProtection(actionFlag byte, userPassStr, ownerPassStr string)
 	SetDefaultFontFamily(fontFamily string)
@@ -465,6 +467,26 @@ func (s *PdfMaroto) Base64Image(base64 string, extension consts.Extension, prop 
 	return s.Image.AddFromBase64(base64, cell, rectProp, extension)
 }
 
+// BytesImage add an Image reading byte slices inside a cell.
+// Defining Image properties.
+func (s *PdfMaroto) BytesImage(imageData []byte, extension consts.Extension, prop ...props.Rect) error {
+	rectProp := props.Rect{}
+	if len(prop) > 0 {
+		rectProp = prop[0]
+	}
+
+	rectProp.MakeValid()
+
+	cell := internal.Cell{
+		X:      s.xColOffset,
+		Y:      s.offsetY + rectProp.Top,
+		Width:  s.colWidth,
+		Height: s.rowHeight,
+	}
+
+	return s.Image.AddFromBytes(imageData, cell, rectProp, extension)
+}
+
 // Barcode create an barcode inside a cell.
 func (s *PdfMaroto) Barcode(code string, prop ...props.Barcode) (err error) {
 	barcodeProp := props.Barcode{}
@@ -543,6 +565,12 @@ func (s *PdfMaroto) Output() (bytes.Buffer, error) {
 // styleStr is the style of the font and fileStr is the path to the .ttf file.
 func (s *PdfMaroto) AddUTF8Font(familyStr string, styleStr consts.Style, fileStr string) {
 	s.Pdf.AddUTF8Font(familyStr, string(styleStr), fileStr)
+}
+
+// AddFontFromReader add a custom utf8 font. familyStr is the name of the custom font registered in maroto.
+// styleStr is the style of the font and r is the reader from the .ttf file.
+func (s *PdfMaroto) AddFontFromReader(familyStr, styleStr string, r io.Reader) {
+	s.Pdf.AddFontFromReader(familyStr, string(styleStr), r)
 }
 
 // SetFontLocation allows you to change the fonts lookup location.  fontDirStr is an absolute path where the fonts should be located

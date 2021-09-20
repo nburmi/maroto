@@ -4,17 +4,19 @@ import (
 	"bytes"
 	"encoding/base64"
 	"errors"
+
 	"github.com/google/uuid"
-	"github.com/johnfercher/maroto/internal/fpdf"
-	"github.com/johnfercher/maroto/pkg/consts"
-	"github.com/johnfercher/maroto/pkg/props"
 	"github.com/jung-kurt/gofpdf"
+	"github.com/nburmi/maroto/internal/fpdf"
+	"github.com/nburmi/maroto/pkg/consts"
+	"github.com/nburmi/maroto/pkg/props"
 )
 
 // Image is the abstraction which deals of how to add images in a PDF
 type Image interface {
 	AddFromFile(path string, cell Cell, prop props.Rect) (err error)
 	AddFromBase64(stringBase64 string, cell Cell, prop props.Rect, extension consts.Extension) (err error)
+	AddFromBytes(imageData []byte, cell Cell, prop props.Rect, extension consts.Extension) error
 }
 
 type image struct {
@@ -58,6 +60,27 @@ func (s *image) AddFromBase64(stringBase64 string, cell Cell, prop props.Rect, e
 			ImageType: string(extension),
 		},
 		bytes.NewReader(ss),
+	)
+
+	if info == nil {
+		return errors.New("Could not register image options, maybe path/name is wrong")
+	}
+
+	s.addImageToPdf(imageId.String(), info, cell, prop)
+	return nil
+}
+
+// AddFromBytes use a bytes to add to PDF.
+func (s *image) AddFromBytes(imageData []byte, cell Cell, prop props.Rect, extension consts.Extension) error {
+	imageId, _ := uuid.NewRandom()
+
+	info := s.pdf.RegisterImageOptionsReader(
+		imageId.String(),
+		gofpdf.ImageOptions{
+			ReadDpi:   false,
+			ImageType: string(extension),
+		},
+		bytes.NewReader(imageData),
 	)
 
 	if info == nil {
