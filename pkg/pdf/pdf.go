@@ -32,6 +32,7 @@ type Maroto interface {
 	Text(text string, prop ...props.Text)
 	FileImage(filePathName string, prop ...props.Rect) (err error)
 	Base64Image(base64 string, extension consts.Extension, prop ...props.Rect) (err error)
+	BytesImage(data []byte, extension consts.Extension, prop ...props.Rect) (err error)
 	Barcode(code string, prop ...props.Barcode) error
 	QrCode(code string, prop ...props.Rect)
 	DataMatrixCode(code string, prop ...props.Rect)
